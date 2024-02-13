@@ -1,0 +1,24 @@
+{{ if .Error }}
+<div class="rounded shadow-sm m-2 p-2 bg-amber-100">
+    <b>Something went wrong.</b> {{.Error}}
+</div>
+{{ end }}
+{{ if .Nodes }}
+<div class="flex flex-column ml-1 mt-4">
+    <p class="ml-2 font-bold">
+        {{.Title}}
+    </p>
+</div>
+<hr class="mt-3" />
+<div class="flex flex-wrap">
+    {{ range .Nodes}}
+    <div class="border-8 border-gray-100 w-full">
+        <div class="mb-1">{{.Name}} | {{.Info}}</div>
+        <div class="bg-slate-200 h-12 text-white shadow-md p-1">
+            <div class="h-full" hx-trigger="every 10s, load" hx-get="/pods?node={{.Name}}" hx-swap="innerHTML">
+            </div>
+        </div>
+    </div>
+    {{end}}
+</div>
+{{ end }}

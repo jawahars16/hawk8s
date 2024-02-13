@@ -1,0 +1,5 @@
+<div class="h-full w-[{{.MemorySize}}]" x-on:click="activeNamespace = '{{.Namespace}}'">
+    <div class="h-full w-full border-r border-slate-200 hover:opacity-80 cursor-pointer" title="{{.Name}} | {{.Status}}"
+        x-bind:class="activeNamespace === '{{.Namespace}}' || activeNamespace === 'all' ? 'bg-[{{.Color}}]' : 'bg-gray-500'">
+    </div>
+</div>
