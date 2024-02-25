@@ -5,7 +5,7 @@ import (
 )
 
 type (
-	viewModel struct {
+	nodeViewModel struct {
 		Nodes           []node
 		ActiveNamespace string
 		ActiveMode      string
@@ -13,6 +13,10 @@ type (
 		Namespaces      []namespace
 		Modes           []mode
 		Error           string
+	}
+	podViewModel struct {
+		Pods  []pod
+		Error string
 	}
 	node struct {
 		Name string

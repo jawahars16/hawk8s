@@ -3,3 +3,6 @@ run:
 
 tools:
 	go install github.com/matryer/moq@latest
+
+test:
+	go test -v ./...

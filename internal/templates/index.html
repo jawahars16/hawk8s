@@ -3,7 +3,6 @@
 <head>
     <title>Example</title>
     <!--Tailwind CSS-->
-    <!-- <link href="/static/style/output.css" rel="stylesheet" /> -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
     <!--HTMX-->
@@ -14,19 +13,22 @@
 </head>
 
 <body class="h-full overflow-hidden">
-    <div class="flex flex-col h-screen">
-        <header class="w-full text-center sticky top-0"></header>
-        {{template "header.html"}}
-        </header>
-        <main class="flex-1">
-            <div class="mx-auto p-8 flex h-full divide-x-2" x-data="{activeNamespace:'all', activeMode:'memory'}">
-                <div class="flex-none w-85" hx-trigger="load" hx-get="/namespaces" hx-swap="innerHTML">
-                </div>
-                <div class="flex-1 growl">
-                    <div id="content" hx-trigger="load" hx-get="/nodes"></div>
-                </div>
+    <div>
+        <header class="bg-white shadow-md fixed top-0 w-full z-50 h-16 flex items-center pl-4">
+            <div class="flex gap-1">
+                <img src="/static/hawk8s.png" class="h-8 w-8" />
+                <h1 class="text-xl font-bold">hawk8s</h1>
             </div>
-        </main>
+        </header>
+        <div class="mt-16 flex w-full fixed bg-white" x-data="{activeNamespace:'all', activeMode:'memory'}">
+            <aside class="h-screen sticky top-0 bg-slate-100" hx-trigger="every 30s, load" hx-get="/namespaces"
+                hx-swap="innerHTML">
+            </aside>
+
+            <main class="h-screen top-0 flex-grow p-5">
+                <div id="content" hx-trigger="every 30s, load" hx-get="/nodes"></div>
+            </main>
+        </div>
     </div>
 </body>
 

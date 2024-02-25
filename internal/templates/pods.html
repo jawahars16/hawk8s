@@ -1,5 +1,10 @@
 <div class="flex h-full">
-    {{ range . }}
+    {{ range .Pods }}
     {{template "pod.html" .}}
     {{ end }}
 </div>
+{{ if .Error }}
+<div id="pod-error" hx-swap-oob="true" class="rounded shadow-sm m-2 p-2 bg-amber-100">
+    <b>{{.Error}}</b>
+</div>
+{{ end }}

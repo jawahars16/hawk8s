@@ -1,21 +1,20 @@
-<div class="mr-10 h-full">
+<div class="flex flex-col p-5 h-[94%]">
     <label for="mode" class="text-gray-800 font-bold border-gray-300 border-b p-1">Mode</label>
     <ul role="list" name="mode">
-        <li value="cpu" class="gap-1 cursor-pointer px-2 py-1" x-on:click="activeMode = 'cpu'"
+        <li value="cpu" class="flex items-center gap-1 cursor-pointer px-2 py-1" x-on:click="activeMode = 'cpu'"
             x-bind:class="activeMode ===  'cpu'? 'bg-gray-400' : 'hover:bg-gray-200'">
-            <div class="w-3 h-3 bg-black"></div>
-            CPU
+            <div class="w-3 h-3 bg-black whitespace-nowrap"></div>CPU
         </li>
         <li value="memory" class="flex items-center gap-1 cursor-pointer px-2 py-1" x-on:click="activeMode = 'memory'"
-            x-on:click="activeMode = 'cpu'"
+            x-on:click="activeMode = 'memory'"
             x-bind:class="activeMode ===  'memory'? 'bg-gray-400' : 'hover:bg-gray-200'">
-            <div class="w-3 h-3 bg-black"></div>
-            Memory
+            <div class="w-3 h-3 bg-black whitespace-nowrap"></div>Memory
         </li>
     </ul>
     <label for="namespace" class="text-gray-800 font-bold mt-3 border-gray-300 border-b p-1">Namespace</label>
-    <ul role="list" class="overflow-y-auto h-80" name="namespace">
+    <ul role="list" class="overflow-y-auto flex-grow" name="namespace">
         <li value="all" class="ns flex items-center gap-1 hover:bg-gray-200 cursor-pointer px-2 py-1"
+            x-bind:class="activeNamespace ===  'all'? 'bg-gray-400' : 'hover:bg-gray-200'"
             x-on:click="activeNamespace = 'all'">
             <div style="background-color: #000;" class="w-3 h-3"></div>
             All
@@ -23,7 +22,7 @@
         {{ range .}}
         <li id="namespace-{{.Name}}" value="{{.Name}}" x-on:click="activeNamespace = '{{.Name}}'"
             x-bind:class="activeNamespace ===  '{{.Name}}'? 'bg-gray-400' : 'hover:bg-gray-200'"
-            class="flex items-center gap-1 cursor-pointer px-2 py-1">
+            class="flex items-center gap-1 cursor-pointer px-2 py-1 whitespace-nowrap">
             <div style="background-color: {{.Color}};" class="w-3 h-3"></div>
             {{.Name}}
         </li>

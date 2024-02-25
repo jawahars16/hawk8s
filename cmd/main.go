@@ -1,30 +1,32 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 
 	"github.com/Masterminds/sprig/v3"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/jawahars16/kubemon/internal/cache"
-	"github.com/jawahars16/kubemon/internal/core"
-	"github.com/jawahars16/kubemon/internal/kubeclient"
+	"github.com/jawahars16/hawk8s/internal/core"
+	"github.com/jawahars16/hawk8s/internal/kubeclient"
 )
 
 func main() {
+	port := flag.String("port", "3000", "Port to run the server")
+	verbose := flag.Bool("verbose", false, "Enable verbose logging")
+	flag.Parse()
+
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
+	if *verbose {
+		r.Use(middleware.Logger)
+	}
 
-	cache := cache.New(5)
-	kubeclient := kubeclient.NewKubeClient(cache)
-	// mockKubeClient := kubeclient.NewMockKube()
-	// nodesService := nodes.NewService(kubeclient)
+	kubeclient := kubeclient.NewKubeClient()
 
-	tmpl := template.Must(template.New("").Funcs(sprig.FuncMap()).ParseGlob("../internal/templates/*.html"))
-	// indexHandler := index.NewIndexHandler(tmpl)
-	// filterHandler := filter.NewHandler(tmpl, kubeclient)
-	// nodesHandler := nodes.NewNodesHandler(tmpl, nodesService)
+	tmpl := template.Must(template.New("").Funcs(sprig.FuncMap()).ParseGlob("internal/templates/*.html"))
 	coreService := core.NewService(kubeclient)
 	coreHandler := core.NewHandler(tmpl, coreService)
 
@@ -33,16 +35,18 @@ func main() {
 	r.Get("/pods", coreHandler.GetPods)
 	r.Get("/namespaces", coreHandler.GetNamespaces)
 
-	// r.Get("/nodes", nodesHandler.Get)
-	// r.Get("/pod/info", podHandler.Get)
-
 	fileServer(r)
-	http.ListenAndServe(":3000", r)
+	log.Println("Starting server at :3000")
+
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", *port), r); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func fileServer(r chi.Router) {
-	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("../static")))
+	fs := http.StripPrefix("/static", http.FileServer(http.Dir("./static")))
 	r.Get("/static/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println(r.URL.Path)
 		fs.ServeHTTP(w, r)
 	}))
 }

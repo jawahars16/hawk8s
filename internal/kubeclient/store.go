@@ -2,17 +2,20 @@ package kubeclient
 
 import (
 	"fmt"
+	"sync"
+	"time"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 	v1beta1 "k8s.io/metrics/pkg/apis/metrics/v1beta1"
 )
 
 type store struct {
-	namespaces []string
-	nodes      []Node
-	pods       []Pod
-	errors     map[string]error
+	namespaces       []string
+	nodes            []Node
+	pods             []Pod
+	podsLastModified int64
+	errors           map[string]error
+	lock             sync.RWMutex
 }
 
 func NewStore() *store {
@@ -21,10 +24,14 @@ func NewStore() *store {
 		nodes:      make([]Node, 0),
 		pods:       make([]Pod, 0),
 		errors:     make(map[string]error),
+		lock:       sync.RWMutex{},
 	}
 }
 
 func (s *store) SetError(key string, err error) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
 	s.errors[key] = err
 }
 
@@ -42,6 +49,9 @@ func (s *store) DeleteNamespace(namespace string) {
 }
 
 func (s *store) GetNamespaces() ([]string, error) {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+
 	if err, found := s.errors["ns"]; found {
 		return nil, err
 	}
@@ -49,16 +59,23 @@ func (s *store) GetNamespaces() ([]string, error) {
 }
 
 func (s *store) AddNode(n *corev1.Node) {
+	var status string
+	if len(n.Status.Conditions) > 0 {
+		status = string(n.Status.Conditions[0].Type)
+	}
 	s.nodes = append(s.nodes, Node{
 		Name:              n.Name,
-		Status:            string(n.Status.Conditions[0].Type),
+		Status:            status,
 		AllocatableMemory: n.Status.Allocatable.Memory().Value(),
 		TotalMemory:       n.Status.Capacity.Memory().Value(),
-		AvailableCPU:      n.Status.Allocatable.Cpu().ScaledValue(resource.Micro),
+		AvailableCPU:      n.Status.Allocatable.Cpu().MilliValue(),
 	})
 }
 
 func (s *store) GetNodes() ([]Node, error) {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+
 	if err, found := s.errors["nodes"]; found {
 		return nil, err
 	}
@@ -90,6 +107,7 @@ func (s *store) AddPod(p *corev1.Pod) {
 		Namespace: p.Namespace,
 		Status:    string(p.Status.Phase),
 	})
+	s.podsLastModified = time.Now().Unix()
 }
 
 func (s *store) ModifyPod(p *corev1.Pod) {
@@ -100,15 +118,16 @@ func (s *store) ModifyPod(p *corev1.Pod) {
 			break
 		}
 	}
+	s.podsLastModified = time.Now().Unix()
 }
 
 func (s *store) GetPods(node string) ([]Pod, error) {
-	if err, found := s.errors["pods"]; found {
-		return nil, err
-	}
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 
+	err := s.errors["pods"]
 	if node == "" {
-		return s.pods, nil
+		return s.pods, err
 	}
 
 	var result []Pod
@@ -117,10 +136,7 @@ func (s *store) GetPods(node string) ([]Pod, error) {
 			result = append(result, pod)
 		}
 	}
-	// if err, found := s.errors["podMetrics"]; found {
-	// 	return result, err
-	// }
-	return result, nil
+	return result, err
 }
 
 func (s *store) DeletePod(name string) {
@@ -130,6 +146,7 @@ func (s *store) DeletePod(name string) {
 			break
 		}
 	}
+	s.podsLastModified = time.Now().Unix()
 }
 
 func (s *store) UpdateMetrics(podMetrics []v1beta1.PodMetrics) {
@@ -144,7 +161,7 @@ func (s *store) UpdateMetrics(podMetrics []v1beta1.PodMetrics) {
 			cpu := metrics.Containers[0].Usage.Cpu()
 			memory := metrics.Containers[0].Usage.Memory()
 
-			s.pods[i].CPUUsage = cpu.ScaledValue(resource.Micro)
+			s.pods[i].CPUUsage = cpu.MilliValue()
 			s.pods[i].MemoryUsage = memory.Value()
 		}
 	}

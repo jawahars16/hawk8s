@@ -1,5 +1,12 @@
-<div class="h-full w-[{{.MemorySize}}]" x-on:click="activeNamespace = '{{.Namespace}}'">
-    <div class="h-full w-full border-r border-slate-200 hover:opacity-80 cursor-pointer" title="{{.Name}} | {{.Status}}"
-        x-bind:class="activeNamespace === '{{.Namespace}}' || activeNamespace === 'all' ? 'bg-[{{.Color}}]' : 'bg-gray-500'">
+<div class="h-full w-[{{.CpuSize}}]" x-show="activeMode == 'cpu'" x-on:click="activeNamespace = '{{.Namespace}}'">
+    <div class="h-full w-full border-r border-slate-200 hover:opacity-80 cursor-pointer bg-[{{.Color}}]"
+        title="{{.Name}} | {{.Status}} | {{.CpuUsage}} CPU | {{.MemoryUsage}} Memory"
+        x-bind:class="activeNamespace === '{{.Namespace}}' || activeNamespace === 'all' ? 'grayscale-0' : 'grayscale'">
+    </div>
+</div>
+<div class="h-full w-[{{.MemorySize}}]" x-show="activeMode == 'memory'" x-on:click="activeNamespace = '{{.Namespace}}'">
+    <div class="h-full w-full border-r border-slate-200 hover:opacity-80 cursor-pointer bg-[{{.Color}}]"
+        title="{{.Name}} | {{.Status}}| {{.CpuUsage}} CPU | {{.MemoryUsage}} Memory"
+        x-bind:class="activeNamespace === '{{.Namespace}}' || activeNamespace === 'all' ? 'grayscale-0' : 'grayscale'">
     </div>
 </div>

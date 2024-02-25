@@ -1,5 +1,5 @@
-# Kubemon
+# hawk8s
 
 Tool to visualize the CPU and Memory utilization of kubernetes by namespace.
 
-![Kubemon](/assets//kubemon.png)
+![hawk8s](/assets//hawk8s.png)

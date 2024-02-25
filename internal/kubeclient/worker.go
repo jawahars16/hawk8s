@@ -34,7 +34,7 @@ func (w *worker) Run(ctx context.Context) {
 func (w *worker) watchNamespaces(ctx context.Context) {
 	watch, err := w.client.CoreV1().Namespaces().Watch(ctx, v1.ListOptions{})
 	if err != nil {
-		// w.store.SetError("ns", err)
+		w.store.SetError("ns", err)
 		return
 	}
 
@@ -59,7 +59,7 @@ func (w *worker) watchNamespaces(ctx context.Context) {
 func (w *worker) watchNodes(ctx context.Context) {
 	watch, err := w.client.CoreV1().Nodes().Watch(ctx, v1.ListOptions{})
 	if err != nil {
-		// w.store.SetError("nodes", err)
+		w.store.SetError("nodes", err)
 		return
 	}
 
@@ -84,7 +84,7 @@ func (w *worker) watchNodes(ctx context.Context) {
 func (w *worker) watchPods(ctx context.Context) {
 	watch, err := w.client.CoreV1().Pods("").Watch(ctx, v1.ListOptions{})
 	if err != nil {
-		// w.store.SetError("pods", err)
+		w.store.SetError("pods", err)
 		return
 	}
 
@@ -112,11 +112,11 @@ func (w *worker) watchPodMetrics(ctx context.Context) {
 	for {
 		podMetrics, err := w.metrics.MetricsV1beta1().PodMetricses("").List(ctx, v1.ListOptions{})
 		if err != nil {
-			// w.store.SetError("podMetrics", err)
+			w.store.SetError("podMetrics", err)
 			return
 		}
 
 		w.store.UpdateMetrics(podMetrics.Items)
-		time.Sleep(10 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 }

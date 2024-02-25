@@ -50,7 +50,7 @@ func (h *Handler) GetNamespaces(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetNodes(w http.ResponseWriter, r *http.Request) {
 	nodes, err := h.service.GetNodes(r.Context())
-	vm := viewModel{
+	vm := nodeViewModel{
 		Nodes: nodes,
 		Title: "Nodes",
 	}
@@ -66,45 +66,15 @@ func (h *Handler) GetNodes(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetPods(w http.ResponseWriter, r *http.Request) {
 	node := r.URL.Query().Get("node")
 	pods, err := h.service.GetPods(r.Context(), node)
+	var errorMsg string
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		errorMsg = err.Error()
 	}
-	err = h.tmpl.ExecuteTemplate(w, "pods.html", pods)
+	err = h.tmpl.ExecuteTemplate(w, "pods.html", podViewModel{
+		Pods:  pods,
+		Error: errorMsg,
+	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
-
-// func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
-// 	ns, mode, err := parseInput(r)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	vm := h.service.GetViewModel(r.Context(), ns, mode)
-// 	err = h.tmpl.ExecuteTemplate(w, "core.html", vm)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 	}
-
-// 	h.activeMode = mode
-// 	h.activeNamespace = ns
-// }
-
-// func parseInput(r *http.Request) (string, string, error) {
-// 	err := r.ParseForm()
-// 	if err != nil {
-// 		return "", "", err
-// 	}
-// 	ns := r.Form.Get("namespace")
-// 	if ns == "" {
-// 		ns = "all"
-// 	}
-// 	mode := r.Form.Get("mode")
-// 	if mode == "" {
-// 		mode = CPU
-// 	}
-// 	return ns, mode, nil
-// }
