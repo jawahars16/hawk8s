@@ -1,5 +1,5 @@
 run:
-	go run cmd/main.go
+	go run cmd/hawk8s/main.go
 
 tools:
 	go install github.com/matryer/moq@latest
