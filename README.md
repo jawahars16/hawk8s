@@ -1,5 +1,5 @@
 
-<img src="static/logo.png" style="width:100px">
+<img src="static/logo-white.png" style="width:100px">
 
 # hawk8s
 
