@@ -15,8 +15,14 @@ Bird eye view of your k8s cluster. With hawk8s, you can understand the state of 
 - Understand in which node, the pods are scheduled and how much resources are being used
 - Understand the state of the nodes in the cluster
 
-## Installation
+## Usage
 
 ```bash
-go install github.com/jawahars16/hawk8s
+make run
+```
+
+## Running tests
+
+```bash
+make test
 ```
